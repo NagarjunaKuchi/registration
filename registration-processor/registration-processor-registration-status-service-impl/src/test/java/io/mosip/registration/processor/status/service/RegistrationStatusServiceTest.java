@@ -71,9 +71,7 @@ public class RegistrationStatusServiceTest {
 
 	@Before
 	public void setup()
-			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-
-		Mockito.doNothing().when(description).setMessage(any());
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {		
 
 		registrationStatusDto = new InternalRegistrationStatusDto();
 		registrationStatusDto.setIsActive(true);

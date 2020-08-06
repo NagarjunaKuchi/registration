@@ -3,7 +3,7 @@ package io.mosip.registration.processor.stages.packet.validator;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +74,7 @@ import io.mosip.registration.processor.status.service.SyncRegistrationService;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ JsonUtil.class, IOUtils.class, HMACUtils.class, Utilities.class, MasterDataValidation.class,
 		MessageDigest.class })
-@PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*" })
+@PowerMockIgnore({ "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*","javax.management.*", "javax.net.ssl.*" , "javax.net.ssl.*" })
 @TestPropertySource(locations = "classpath:application.properties")
 public class PacketValidateProcessorTest {
 	@InjectMocks
@@ -123,11 +123,11 @@ public class PacketValidateProcessorTest {
 		registrationStatusDto = new InternalRegistrationStatusDto();
 		registrationStatusDto.setRegistrationId("123456789");
 		
-		Mockito.when(registrationStatusService.getRegistrationStatus(anyString())).thenReturn(registrationStatusDto);
+		Mockito.when(registrationStatusService.getRegistrationStatus(any())).thenReturn(registrationStatusDto);
 		
 		regEntity=new SyncRegistrationEntity();
 		regEntity.setSupervisorStatus("APPROVED");
-		Mockito.when(syncRegistrationService.findByRegistrationId(anyString())).thenReturn(regEntity);
+		Mockito.when(syncRegistrationService.findByRegistrationId(any())).thenReturn(regEntity);
 		JSONObject jsonObject = Mockito.mock(JSONObject.class);
 		packetMetaInfo = new PacketMetaInfo();
 		Identity identity = new Identity();
@@ -192,12 +192,12 @@ public class PacketValidateProcessorTest {
 		fieldValueArrayListSequence.add(hashsequence2);
 		identity.setHashSequence2(fieldValueArrayListSequence);
 		packetMetaInfo.setIdentity(identity);
-		Mockito.when(packetReaderService.getFile(anyString(),anyString(),anyString())).thenReturn(packetMetaInfoStream);
+		Mockito.when(packetReaderService.getFile(any(),any(),any())).thenReturn(packetMetaInfoStream);
 		PowerMockito.mockStatic(JsonUtil.class);
 		PowerMockito.when(JsonUtil.class, "inputStreamtoJavaObject", packetMetaInfoStream, PacketMetaInfo.class)
 				.thenReturn(packetMetaInfo);
-		Mockito.when(packetValidator.validate(anyString(), anyString(),any())).thenReturn(true);
-		Mockito.doNothing().when(auditUtility).saveAuditDetails(anyString(), anyString());
+		Mockito.when(packetValidator.validate(any(), any(),any())).thenReturn(true);
+		Mockito.doNothing().when(auditUtility).saveAuditDetails(any(), any());
 		
 		MainResponseDTO<ReverseDatasyncReponseDTO> mainResponseDTO = new MainResponseDTO<>();
 		ReverseDatasyncReponseDTO reverseDatasyncReponseDTO = new ReverseDatasyncReponseDTO();
@@ -226,7 +226,7 @@ public class PacketValidateProcessorTest {
 	@Test
 	public void PacketValidationFailureTest() throws PacketValidatorException {
 		Mockito.when(registrationStatusMapperUtil.getStatusCode(RegistrationExceptionTypeCode.EXCEPTION)).thenReturn("ERROR");
-		Mockito.when(packetValidator.validate(anyString(), anyString(),any())).thenReturn(false);
+		Mockito.when(packetValidator.validate(any(), any(),any())).thenReturn(false);
 		assertFalse(packetValidateProcessor.process(messageDTO, stageName).getIsValid());
 	}
 	
@@ -234,42 +234,42 @@ public class PacketValidateProcessorTest {
 	public void invalidSupervisorStatusTest() throws PacketValidatorException {
 		regEntity=new SyncRegistrationEntity();
 		regEntity.setSupervisorStatus("REJECTED");
-		Mockito.when(syncRegistrationService.findByRegistrationId(anyString())).thenReturn(regEntity);
+		Mockito.when(syncRegistrationService.findByRegistrationId(any())).thenReturn(regEntity);
 		assertFalse(packetValidateProcessor.process(messageDTO, stageName).getIsValid());
 	}
 	
 	@Test
 	public void PacketValidationAPIResourceExceptionTest() throws PacketValidatorException {
 		PacketValidatorException exc=new PacketValidatorException(new ApiNotAccessibleException(""));
-		Mockito.when(packetValidator.validate(anyString(), anyString(),any())).thenThrow(exc);
+		Mockito.when(packetValidator.validate(any(), any(),any())).thenThrow(exc);
 		assertTrue(packetValidateProcessor.process(messageDTO, stageName).getInternalError());
 	}
 	
 	@Test
 	public void PacketValidationIOExceptionTest() throws PacketValidatorException {
 		PacketValidatorException exc=new PacketValidatorException(new IOException(""));
-		Mockito.when(packetValidator.validate(anyString(), anyString(),any())).thenThrow(exc);
+		Mockito.when(packetValidator.validate(any(), any(),any())).thenThrow(exc);
 		assertTrue(packetValidateProcessor.process(messageDTO, stageName).getInternalError());
 	}
 	
 	@Test
 	public void PacketValidationBaseCheckedExceptionTest() throws PacketValidatorException {
 		PacketValidatorException exc=new PacketValidatorException(new BaseCheckedException());
-		Mockito.when(packetValidator.validate(anyString(), anyString(),any())).thenThrow(exc);
+		Mockito.when(packetValidator.validate(any(), any(),any())).thenThrow(exc);
 		assertTrue(packetValidateProcessor.process(messageDTO, stageName).getInternalError());
 	}
 	
 	@Test
 	public void PacketValidationBaseUncheckedExceptionTest() throws PacketValidatorException {
 		PacketValidatorException exc=new PacketValidatorException(new BaseUncheckedException());
-		Mockito.when(packetValidator.validate(anyString(), anyString(),any())).thenThrow(exc);
+		Mockito.when(packetValidator.validate(any(), any(),any())).thenThrow(exc);
 		assertTrue(packetValidateProcessor.process(messageDTO, stageName).getInternalError());
 	}
 	
 	@Test
 	public void PacketValidationExceptionTest() throws PacketValidatorException {
 		PacketValidatorException exc=new PacketValidatorException(new Exception());
-		Mockito.when(packetValidator.validate(anyString(), anyString(),any())).thenThrow(exc);
+		Mockito.when(packetValidator.validate(any(), any(),any())).thenThrow(exc);
 		assertTrue(packetValidateProcessor.process(messageDTO, stageName).getInternalError());
 	}
 	
@@ -342,7 +342,7 @@ public class PacketValidateProcessorTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void TableNotAccessibleExceptionest() throws Exception  {
-		Mockito.when(registrationStatusService.getRegistrationStatus(anyString()))
+		Mockito.when(registrationStatusService.getRegistrationStatus(any()))
 				.thenThrow( TablenotAccessibleException.class);
 		
 		assertFalse(packetValidateProcessor.process(messageDTO, stageName).getIsValid());
@@ -351,7 +351,7 @@ public class PacketValidateProcessorTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void DataNotAccessibleExceptionest() throws Exception  {
-		Mockito.when(registrationStatusService.getRegistrationStatus(anyString()))
+		Mockito.when(registrationStatusService.getRegistrationStatus(any()))
 				.thenThrow( BaseUncheckedException.class);
 		
 		assertFalse(packetValidateProcessor.process(messageDTO, stageName).getIsValid());
@@ -360,8 +360,8 @@ public class PacketValidateProcessorTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void BaseCheckedExceptionTest() throws Exception  {
-		Mockito.when(registrationStatusService.getRegistrationStatus(anyString()))
-				.thenThrow( BaseCheckedException.class);
+		Mockito.when(registrationStatusService.getRegistrationStatus(any()))
+				.thenThrow( BaseUncheckedException.class);
 		
 		assertFalse(packetValidateProcessor.process(messageDTO, stageName).getIsValid());
 	}

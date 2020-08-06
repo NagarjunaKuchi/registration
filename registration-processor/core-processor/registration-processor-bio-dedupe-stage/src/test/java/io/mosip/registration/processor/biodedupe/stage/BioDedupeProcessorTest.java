@@ -70,7 +70,7 @@ import io.mosip.registration.processor.status.service.RegistrationStatusService;
  * The Class BioDedupeStageTest.
  */
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "javax.management.*", "javax.net.ssl.*" })
+@PowerMockIgnore({ "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*","javax.management.*", "javax.net.ssl.*" })
 @PrepareForTest({ Utilities.class })
 public class BioDedupeProcessorTest {
 
